@@ -12,6 +12,7 @@
         body {
             font-family: 'Inter', sans-serif;
             overflow-y: auto; /* Izinkan scroll vertikal jika perlu */
+            overflow-x: hidden; /* Cegah scroll horizontal */
         }
         .font-lora {
             font-family: 'Lora', serif;
@@ -44,7 +45,7 @@
 <body class="bg-gradient-to-br from-gray-900 to-slate-800 text-white flex items-center justify-center min-h-screen p-4">
 
     <!-- Container untuk confetti -->
-    <div id="confetti-container" class="absolute top-0 left-0 w-full h-full pointer-events-none"></div>
+    <div id="confetti-container" class="absolute top-0 left-0 w-full h-full pointer-events-none -z-10"></div>
 
     <!-- Card Ucapan -->
     <div id="congratsCard" class="relative bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl p-8 md:p-12 max-w-2xl w-full text-center border border-white/20 transform hover:scale-105 transition-all duration-500">
@@ -224,13 +225,13 @@
             
             // Game functions
             function spawnObstacle() {
-                let size = Math.random() * 40 + 30;
+                let size = Math.random() * 30 + 20; // smaller obstacles
                 let type = Math.random();
                 let obstacle;
                 if(type < 0.5){
                     obstacle = new Obstacle(canvas.width + size, canvas.height - size - 10, size, size, '#f472b6'); // pink
                 } else {
-                    obstacle = new Obstacle(canvas.width + size, canvas.height - size * 2 - 10, size, size*2, '#67e8f9'); // cyan
+                    obstacle = new Obstacle(canvas.width + size, canvas.height - size * 1.5 - 10, size, size * 1.5, '#67e8f9'); // cyan
                 }
                 obstacles.push(obstacle);
             }
@@ -244,7 +245,8 @@
                 gravity = 0.6;
                 keys = { 'Space': false, 'KeyW': false, 'ArrowUp': false, 'touch': false };
 
-                player = new Player(50, canvas.height - 60, 40, 40, '#fde047'); // yellow
+                // --- CHANGE HERE: Player size is now smaller ---
+                player = new Player(50, canvas.height - 60, 30, 30, '#fde047'); // yellow
 
                 scoreEl.innerText = 0;
                 finalScoreEl.innerText = 0;
@@ -344,5 +346,4 @@
     </script>
 </body>
 </html>
-
 
