@@ -17,6 +17,9 @@
         .font-lora {
             font-family: 'Lora', serif;
         }
+        h1 {
+            text-shadow: 0 0 15px rgba(102, 212, 255, 0.5), 0 0 25px rgba(244, 114, 182, 0.5);
+        }
         .confetti {
             position: absolute;
             width: 8px;
@@ -26,31 +29,138 @@
             animation: fall 5s linear infinite;
         }
         @keyframes fall {
-            0% {
-                transform: translateY(-10vh) rotate(0deg);
-            }
-            100% {
-                transform: translateY(110vh) rotate(720deg);
-            }
+            0% { transform: translateY(-10vh) rotate(0deg); }
+            100% { transform: translateY(110vh) rotate(720deg); }
         }
         canvas {
-            background-color: rgba(15, 23, 42, 0.8); /* bg-slate-900 with opacity */
-            border-radius: 0.75rem; /* 12px */
+            background-color: rgba(15, 23, 42, 0.8);
+            border-radius: 0.75rem;
             display: block;
             margin: 0 auto;
             max-width: 100%;
+        }
+
+        /* --- Kanvas untuk animasi kucing random --- */
+        #catAnimationCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh; /* DIUBAH: Full screen */
+            pointer-events: none; /* Sangat penting agar tidak bisa diklik */
+            z-index: 15; /* DIUBAH: Di atas kartu ucapan */
+            background-color: transparent;
+        }
+
+        /* --- Animasi dan Style Baru --- */
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        #congratsCard {
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            position: relative; 
+            z-index: 10; 
+        }
+
+        .polaroid {
+            background: white;
+            padding: 0.75rem;
+            padding-bottom: 2.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
+            position: absolute;
+            width: 150px;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out, transform 0.3s ease-in-out;
+        }
+
+        .polaroid.active {
+            opacity: 1;
+            z-index: 10;
+            animation-duration: 0.7s;
+            animation-fill-mode: forwards;
+            animation-timing-function: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .polaroid:hover {
+            transform: scale(1.15) rotate(0deg) !important;
+            z-index: 20;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 0 15px rgba(255, 255, 255, 0.3);
+        }
+
+        /* --- Kumpulan Animasi Foto Keren --- */
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translate3d(0, 40px, 0) scale(0.9) rotate(var(--angle, 0deg)); }
+          to { opacity: 1; transform: translate3d(0, 0, 0) scale(1) rotate(var(--angle, 0deg)); }
+        }
+        .fadeInUp { animation-name: fadeInUp; }
+
+        @keyframes fadeInDown {
+          from { opacity: 0; transform: translate3d(0, -40px, 0) scale(0.9) rotate(var(--angle, 0deg)); }
+          to { opacity: 1; transform: translate3d(0, 0, 0) scale(1) rotate(var(--angle, 0deg)); }
+        }
+        .fadeInDown { animation-name: fadeInDown; }
+
+        @keyframes fadeInLeft {
+          from { opacity: 0; transform: translate3d(-40px, 0, 0) scale(0.9) rotate(var(--angle, 0deg)); }
+          to { opacity: 1; transform: translate3d(0, 0, 0) scale(1) rotate(var(--angle, 0deg)); }
+        }
+        .fadeInLeft { animation-name: fadeInLeft; }
+
+        @keyframes fadeInRight {
+          from { opacity: 0; transform: translate3d(40px, 0, 0) scale(0.9) rotate(var(--angle, 0deg)); }
+          to { opacity: 1; transform: translate3d(0, 0, 0) scale(1) rotate(var(--angle, 0deg)); }
+        }
+        .fadeInRight { animation-name: fadeInRight; }
+        
+        /* --- Animasi Karakter --- */
+        #character-container {
+            transform: translateY(110%); /* Sembunyikan di awal */
+            z-index: 20; 
+        }
+
+        #gameContainer {
+            z-index: 100; /* Game di atas segalanya */
+        }
+
+        @keyframes bounceIn {
+            0% { transform: translateY(110%) scale(0.3); opacity: 0; }
+            50% { transform: translateY(-10px) scale(1.05); }
+            70% { transform: translateY(5px) scale(0.95); }
+            100% { transform: translateY(0) scale(1); opacity: 1; }
+        }
+
+        #character-container.active {
+            animation: bounceIn 1s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(20deg); }
+        }
+
+        #character-hand {
+            transform-origin: bottom center;
+            animation: wave 1.5s ease-in-out infinite 1s;
+        }
+        
+        #speech-bubble {
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
         }
     </style>
 </head>
 <body class="bg-gradient-to-br from-gray-900 to-slate-800 text-white flex items-center justify-center min-h-screen p-4">
 
+    <!-- Kanvas untuk animasi kucing random -->
+    <canvas id="catAnimationCanvas"></canvas>
+
     <!-- Container untuk confetti -->
     <div id="confetti-container" class="absolute top-0 left-0 w-full h-full pointer-events-none -z-10"></div>
 
     <!-- Card Ucapan -->
-    <div id="congratsCard" class="relative bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl p-8 md:p-12 max-w-2xl w-full text-center border border-white/20 transform hover:scale-105 transition-all duration-500">
+    <div id="congratsCard" class="relative bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl p-8 md:p-12 max-w-2xl w-full text-center border border-white/20 transition-all duration-500">
         
-        <!-- Elemen Dekoratif -->
         <div class="absolute -top-5 -left-5 w-16 h-16 bg-rose-500 rounded-full mix-blend-lighten opacity-50 filter blur-xl"></div>
         <div class="absolute -bottom-5 -right-5 w-16 h-16 bg-sky-500 rounded-full mix-blend-lighten opacity-50 filter blur-xl"></div>
 
@@ -79,6 +189,11 @@
             <h2 class="font-lora text-2xl md:text-3xl font-bold text-white mb-4">
                 [Nama Mahasiswa]
             </h2>
+
+            <div id="photoCollage" class="relative flex justify-center items-center my-8 h-[280px]">
+                <!-- Foto akan ditambahkan dan diganti oleh JavaScript -->
+            </div>
+            
             <p class="text-gray-300 max-w-md mx-auto leading-relaxed">
                 Semua kerja keras, malam tanpa tidur, dan dedikasi akhirnya terbayar. Ini adalah langkah besar dan pencapaian yang luar biasa. Kami semua bangga padamu!
             </p>
@@ -110,12 +225,36 @@
         </div>
     </div>
 
+    <!-- Karakter Animasi -->
+    <div id="character-container" class="fixed bottom-0 right-5 z-30">
+        <div id="speech-bubble" class="absolute bottom-[160px] right-0 w-max max-w-xs bg-white text-gray-800 p-4 rounded-xl rounded-br-none shadow-lg transform scale-90 opacity-0">
+            <p class="font-bold">Hebat! Selamat ya!</p>
+            <button id="close-bubble" class="absolute top-1 right-2 text-gray-400 hover:text-gray-800">&times;</button>
+        </div>
+        <svg id="character-svg" width="150" height="150" viewBox="0 0 150 150">
+            <!-- Body -->
+            <circle cx="75" cy="100" r="50" fill="#67e8f9"/>
+            <!-- Eyes -->
+            <circle id="eye-left-white" cx="60" cy="90" r="8" fill="white"/>
+            <circle id="eye-right-white" cx="90" cy="90" r="8" fill="white"/>
+            <circle id="pupil-left" cx="62" cy="92" r="4" fill="black"/>
+            <circle id="pupil-right" cx="92" cy="92" r="4" fill="black"/>
+            <path id="eye-left-wink" d="M 55 90 H 65" stroke="black" stroke-width="4" fill="none" stroke-linecap="round" style="display:none;"/>
+            <!-- Mouths -->
+            <path id="mouth-smile" d="M 65 110 Q 75 125 85 110" stroke="white" stroke-width="3" fill="transparent"/>
+            <circle id="mouth-surprised" cx="75" cy="115" r="5" stroke="white" stroke-width="3" fill="transparent" style="display:none;"/>
+            <!-- Hand -->
+            <g id="character-hand">
+                <path d="M 120 100 C 130 90, 140 110, 130 120 Z" fill="#67e8f9"/>
+            </g>
+        </svg>
+    </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // --- Confetti Logic ---
             const confettiContainer = document.getElementById('confetti-container');
-            const confettiCount = 100;
+            const confettiCount = 200;
             const colors = ['#fde047', '#f59e0b', '#67e8f9', '#f472b6', '#ffffff'];
 
             for (let i = 0; i < confettiCount; i++) {
@@ -129,6 +268,276 @@
                 confettiContainer.appendChild(confetti);
             }
 
+            // --- Photo Collage Logic ---
+            const photoCollage = document.getElementById('photoCollage');
+            const photos = [ 'https://placehold.co/200x250/ec4899/ffffff?text=Momen\\nBahagia', 'https://placehold.co/200x250/38bdf8/ffffff?text=Presentasi\\nKeren', 'https://placehold.co/200x250/f59e0b/ffffff?text=Akhirnya\\nLega!', 'https://placehold.co/200x250/84cc16/ffffff?text=Kerja\\nKeras', 'https://placehold.co/200x250/a855f7/ffffff?text=Pencapaian\\nHebat', 'https://placehold.co/200x250/ef4444/ffffff?text=Sukses\\nSelalu' ];
+            const animationClasses = ['fadeInUp', 'fadeInDown', 'fadeInLeft', 'fadeInRight'];
+            let currentPhotoIndex = -1;
+
+            photos.forEach((src) => {
+                const photoDiv = document.createElement('div');
+                photoDiv.className = 'polaroid';
+                const img = document.createElement('img');
+                img.src = src;
+                img.alt = 'Foto kenangan seminar proposal';
+                img.className = 'w-full h-auto';
+                photoDiv.appendChild(img);
+                photoCollage.appendChild(photoDiv);
+            });
+
+            const polaroidElements = photoCollage.querySelectorAll('.polaroid');
+
+            function cyclePhotos() {
+                const previousPhoto = polaroidElements[currentPhotoIndex];
+                if (previousPhoto) { previousPhoto.className = 'polaroid'; }
+                currentPhotoIndex = (currentPhotoIndex + 1) % polaroidElements.length;
+                const nextPhoto = polaroidElements[currentPhotoIndex];
+                const randomAnimation = animationClasses[Math.floor(Math.random() * animationClasses.length)];
+                const newAngle = Math.random() * 15 - 7.5;
+                nextPhoto.style.setProperty('--angle', `${newAngle}deg`);
+                nextPhoto.className = 'polaroid active ' + randomAnimation;
+            }
+            if (polaroidElements.length > 0) { cyclePhotos(); setInterval(cyclePhotos, 3500); }
+
+            // --- Animated Character Logic ---
+            const characterContainer = document.getElementById('character-container');
+            const speechBubble = document.getElementById('speech-bubble');
+            const closeBubbleBtn = document.getElementById('close-bubble');
+            let isCharacterHidden = false;
+
+            // --- Expression Elements and Logic ---
+            const pupilLeft = document.getElementById('pupil-left');
+            const pupilRight = document.getElementById('pupil-right');
+            const eyeLeftWhite = document.getElementById('eye-left-white');
+            const eyeLeftWink = document.getElementById('eye-left-wink');
+            const mouthSmile = document.getElementById('mouth-smile');
+            const mouthSurprised = document.getElementById('mouth-surprised');
+            let expressionInterval = null;
+            const expressions = ['normal', 'joyful', 'wink', 'surprised'];
+
+            function setExpression(expression) {
+                // Reset semua elemen ke kondisi normal terlebih dahulu
+                pupilLeft.style.display = 'block';
+                eyeLeftWhite.style.display = 'block';
+                eyeLeftWink.style.display = 'none';
+                mouthSmile.style.display = 'block';
+                mouthSurprised.style.display = 'none';
+                mouthSmile.setAttribute('d', 'M 65 110 Q 75 125 85 110'); // Senyum normal
+
+                switch (expression) {
+                    case 'joyful':
+                        mouthSmile.setAttribute('d', 'M 60 110 Q 75 130 90 110'); // Senyum lebih lebar
+                        break;
+                    case 'wink':
+                        pupilLeft.style.display = 'none';
+                        eyeLeftWhite.style.display = 'none';
+                        eyeLeftWink.style.display = 'block';
+                        break;
+                    case 'surprised':
+                        mouthSmile.style.display = 'none';
+                        mouthSurprised.style.display = 'block';
+                        break;
+                    case 'normal':
+                    default:
+                        // Sudah direset, tidak perlu melakukan apa-apa
+                        break;
+                }
+            }
+
+            function hideCharacterAndStopExpression() {
+                if (expressionInterval) {
+                    clearInterval(expressionInterval);
+                    expressionInterval = null;
+                }
+                isCharacterHidden = true;
+                characterContainer.style.transition = 'transform 0.5s ease-in';
+                characterContainer.style.transform = 'translateY(110%)';
+            }
+            
+            setTimeout(() => {
+                characterContainer.classList.add('active');
+                if (!expressionInterval) {
+                    expressionInterval = setInterval(() => {
+                        const randomExpression = expressions[Math.floor(Math.random() * expressions.length)];
+                        setExpression(randomExpression);
+                    }, 3000); // Ganti ekspresi setiap 3 detik
+                }
+                setTimeout(() => { if(!isCharacterHidden) { speechBubble.style.opacity = '1'; speechBubble.style.transform = 'scale(1)'; } }, 1000);
+            }, 2000);
+
+            closeBubbleBtn.addEventListener('click', hideCharacterAndStopExpression);
+
+            // --- Game & Cat Character Logic ---
+            class Cat {
+                constructor(x, y, width, height, color) {
+                    this.x = x; this.y = y; this.width = width; this.height = height; this.color = color;
+                    this.dx = 0; this.dy = 0; this.jumpForce = 12; this.grounded = false; this.runFrame = 0;
+                }
+                Animate(ctx, gravity) {
+                    if (keys['Space'] || keys['KeyW'] || keys['ArrowUp'] || keys['touch']) {
+                        if(this.grounded) { this.dy = -this.jumpForce; this.grounded = false; }
+                    }
+                    keys['touch'] = false;
+                    this.y += this.dy;
+                    if (this.y + this.height < ctx.canvas.height - 10) {
+                        this.dy += gravity; this.grounded = false;
+                    } else {
+                        this.dy = 0; this.grounded = true; this.y = ctx.canvas.height - this.height - 10;
+                    }
+                    if (this.grounded) { this.runFrame++; } else { this.runFrame = 0; }
+                    this.Draw(ctx, 'run');
+                }
+                Draw(ctx, pose = 'run') { // DIUBAH: Menambahkan parameter pose
+                    ctx.save();
+                    ctx.translate(this.x, this.y);
+                    const catColor = this.color; const bodyWidth = this.width; const bodyHeight = this.height;
+                    const isLegForward = Math.floor(this.runFrame / 6) % 2 === 0;
+
+                    // EKOR
+                    ctx.strokeStyle = catColor; ctx.lineWidth = 5; ctx.lineCap = 'round'; ctx.beginPath(); ctx.moveTo(0, bodyHeight * 0.4);
+                    const tailY = (pose === 'run' && this.grounded) ? Math.sin(this.runFrame * 0.2) * 5 : 0;
+                    ctx.quadraticCurveTo(-bodyWidth * 0.5, -bodyHeight * 0.5 + tailY, -bodyWidth * 0.1, -bodyHeight * 0.2 + tailY); ctx.stroke();
+                    
+                    // KAKI
+                    const legPose = (pose === 'run' && this.grounded) ? (isLegForward ? 'forward' : 'backward') : 'jump';
+                    ctx.beginPath(); ctx.moveTo(bodyWidth * 0.2, bodyHeight * 0.8);
+                    if(legPose === 'forward') ctx.lineTo(bodyWidth * 0.1, bodyHeight + 5);
+                    else if(legPose === 'backward') ctx.lineTo(bodyWidth * 0.4, bodyHeight + 5);
+                    else ctx.lineTo(bodyWidth * 0.2, bodyHeight + 5);
+                    ctx.stroke();
+                    ctx.beginPath(); ctx.moveTo(bodyWidth * 0.8, bodyHeight * 0.8);
+                    if(legPose === 'forward') ctx.lineTo(bodyWidth * 0.9, bodyHeight + 5);
+                    else if(legPose === 'backward') ctx.lineTo(bodyWidth * 0.7, bodyHeight + 5);
+                    else ctx.lineTo(bodyWidth * 0.8, bodyHeight + 5);
+                    ctx.stroke();
+
+                    // BADAN
+                    ctx.fillStyle = catColor; ctx.beginPath(); ctx.roundRect(0, 0, bodyWidth, bodyHeight, 10); ctx.fill();
+                    
+                    // KEPALA
+                    const headRadius = bodyHeight * 0.6;
+                    const headX = bodyWidth * 0.85;
+                    const headY = (pose === 'lookUp') ? headRadius * 0.4 : headRadius * 0.8; // Kepala mendongak
+                    ctx.beginPath(); ctx.arc(headX, headY, headRadius, 0, 2 * Math.PI); ctx.fill();
+                    
+                    // TELINGA
+                    const earSize = headRadius * 0.5;
+                    ctx.translate(headX, headY); // Pindahkan origin ke pusat kepala untuk rotasi telinga
+                    ctx.beginPath(); ctx.moveTo(-headRadius*0.4, -headRadius*0.8); ctx.lineTo(0, -headRadius*0.8 - earSize); ctx.lineTo(headRadius*0.4, -headRadius*0.8); ctx.fill();
+                    ctx.beginPath(); ctx.moveTo(headRadius*0.2, -headRadius*0.8); ctx.lineTo(headRadius*0.6, -headRadius*0.8 - earSize); ctx.lineTo(headRadius, -headRadius*0.8); ctx.fill();
+                    ctx.translate(-headX, -headY); // Kembalikan origin
+
+                    // MATA
+                    const eyeY = (pose === 'lookUp') ? headY * 0.8 : headY;
+                    ctx.fillStyle = 'white'; ctx.beginPath(); ctx.arc(bodyWidth * 0.95, eyeY, 4, 0, Math.PI * 2); ctx.fill();
+                    ctx.fillStyle = 'black'; ctx.beginPath(); ctx.arc(bodyWidth * 0.97, eyeY, 2, 0, Math.PI * 2); ctx.fill();
+
+                    ctx.restore();
+                }
+            }
+
+            // --- Random Cat Animation on Main Screen ---
+            const catAnimCanvas = document.getElementById('catAnimationCanvas');
+            const catAnimCtx = catAnimCanvas.getContext('2d');
+            catAnimCanvas.width = window.innerWidth;
+            catAnimCanvas.height = window.innerHeight; // DIUBAH
+            let activeCatAnimation = null;
+            let isGameActive = false;
+
+            function triggerRandomCatAnimation() {
+                if (activeCatAnimation || isGameActive) return;
+                const delay = Math.random() * 5000 + 2000;
+                setTimeout(() => {
+                    const animations = [runCatAcrossBottom, fallFromTop];
+                    if (characterContainer.classList.contains('active') && !isCharacterHidden && Math.random() < 0.5) {
+                        animations.push(interactWithCharacter);
+                    }
+                    const chosenAnimation = animations[Math.floor(Math.random() * animations.length)];
+                    chosenAnimation();
+                }, delay);
+            }
+
+            function runCatAcrossBottom() {
+                const direction = Math.random() < 0.5 ? 'left' : 'right';
+                const speed = 2 + Math.random() * 2;
+                const cat = new Cat( direction === 'right' ? -60 : catAnimCanvas.width + 60, catAnimCanvas.height - 45, 40, 30, '#fde047');
+                cat.dx = direction === 'right' ? speed : -speed; cat.grounded = true;
+                function animateRun() {
+                    cat.x += cat.dx; cat.runFrame++;
+                    catAnimCtx.clearRect(0, 0, catAnimCanvas.width, catAnimCanvas.height);
+                    cat.Draw(catAnimCtx, 'run');
+                    if ((direction === 'right' && cat.x > catAnimCanvas.width + 60) || (direction === 'left' && cat.x < -60)) {
+                        activeCatAnimation = null; triggerRandomCatAnimation();
+                    } else { activeCatAnimation = requestAnimationFrame(animateRun); }
+                }
+                animateRun();
+            }
+            
+            function fallFromTop() {
+                const cat = new Cat(Math.random() * catAnimCanvas.width * 0.8 + (catAnimCanvas.width * 0.1), -60, 40, 30, '#fde047');
+                cat.dy = 2; const gravity = 0.2; let hasBounced = false;
+                function animateFall() {
+                    cat.dy += gravity; cat.y += cat.dy;
+                    if (cat.y >= catAnimCanvas.height - 45 && !hasBounced) {
+                        hasBounced = true; cat.y = catAnimCanvas.height - 45; cat.dy *= -0.6; cat.dx = Math.random() < 0.5 ? 4 : -4; cat.grounded = true;
+                    }
+                    if (hasBounced) { cat.x += cat.dx; cat.runFrame++; }
+                    catAnimCtx.clearRect(0, 0, catAnimCanvas.width, catAnimCanvas.height);
+                    cat.Draw(catAnimCtx, hasBounced ? 'run' : 'jump');
+                    if (cat.x > catAnimCanvas.width + 60 || cat.x < -60) {
+                        activeCatAnimation = null; triggerRandomCatAnimation();
+                    } else { activeCatAnimation = requestAnimationFrame(animateFall); }
+                }
+                animateFall();
+            }
+
+            function interactWithCharacter() {
+                const cat = new Cat(-60, catAnimCanvas.height - 45, 40, 30, '#fde047');
+                cat.dx = 3; cat.grounded = true; let interactionState = 'running_to_char';
+                let heart = { y: cat.y - 20, opacity: 0, size: 0};
+                const targetX = catAnimCanvas.width - 200;
+                function animateInteraction() {
+                    let currentPose = 'run';
+                    if (interactionState === 'running_to_char') {
+                        cat.x += cat.dx; cat.runFrame++;
+                        if (cat.x >= targetX) {
+                            interactionState = 'looking_up';
+                            setTimeout(() => { interactionState = 'running_away'; cat.dx = 4; }, 2500);
+                        }
+                    } else if (interactionState === 'looking_up') {
+                        currentPose = 'lookUp';
+                        heart.y -= 0.5; heart.opacity = Math.min(1, heart.opacity + 0.05); heart.size = Math.min(20, heart.size + 1);
+                        catAnimCtx.clearRect(0, 0, catAnimCanvas.width, catAnimCanvas.height);
+                        drawHeart(cat.x + 45, heart.y, heart.size, heart.opacity);
+                    } else if (interactionState === 'running_away') { cat.x += cat.dx; cat.runFrame++; }
+                    
+                    if(interactionState !== 'looking_up') catAnimCtx.clearRect(0, 0, catAnimCanvas.width, catAnimCanvas.height);
+                    cat.Draw(catAnimCtx, currentPose);
+
+                    if (cat.x > catAnimCanvas.width + 60) {
+                        activeCatAnimation = null; triggerRandomCatAnimation();
+                    } else { activeCatAnimation = requestAnimationFrame(animateInteraction); }
+                }
+                animateInteraction();
+            }
+
+            function drawHeart(x, y, size, opacity) {
+                catAnimCtx.save();
+                catAnimCtx.globalAlpha = opacity;
+                catAnimCtx.fillStyle = '#f472b6';
+                catAnimCtx.beginPath();
+                catAnimCtx.moveTo(x, y);
+                catAnimCtx.bezierCurveTo(x, y - size/2, x - size, y - size/2, x-size, y);
+                catAnimCtx.bezierCurveTo(x - size, y + size/3, x, y + size, x, y);
+                catAnimCtx.bezierCurveTo(x, y + size, x + size, y + size/3, x+size, y);
+                catAnimCtx.bezierCurveTo(x+size, y-size/2, x, y-size/2, x,y);
+                catAnimCtx.fill();
+                catAnimCtx.restore();
+            }
+
+            window.addEventListener('resize', () => { catAnimCanvas.width = window.innerWidth; catAnimCanvas.height = window.innerHeight; });
+            triggerRandomCatAnimation();
+
             // --- Game Logic ---
             const congratsCard = document.getElementById('congratsCard');
             const gameContainer = document.getElementById('gameContainer');
@@ -136,212 +545,46 @@
             const backToCardBtn = document.getElementById('backToCardBtn');
             const restartBtn = document.getElementById('restartBtn');
             const gameOverScreen = document.getElementById('gameOverScreen');
-            
-            const canvas = document.getElementById('gameCanvas');
-            const ctx = canvas.getContext('2d');
+            const gameCanvas = document.getElementById('gameCanvas');
+            const gameCtx = gameCanvas.getContext('2d');
             const scoreEl = document.getElementById('score');
             const finalScoreEl = document.getElementById('finalScore');
 
             let animationFrameId;
             let player, gravity, obstacles, score, gameSpeed, keys;
             
-            function setupCanvas() {
-                const containerWidth = gameContainer.clientWidth - 32; // padding
-                const aspectRatio = 2 / 1; // e.g. 800x400
-                canvas.width = Math.min(containerWidth, 800);
-                canvas.height = canvas.width / aspectRatio;
-            }
-
-            // Player object
-            class Player {
-                constructor(x, y, width, height, color) {
-                    this.x = x;
-                    this.y = y;
-                    this.width = width;
-                    this.height = height;
-                    this.color = color;
-                    this.dy = 0; // Direction Y (velocity)
-                    this.jumpForce = 12;
-                    this.originalHeight = height;
-                    this.grounded = false;
-                }
-
-                Animate() {
-                    // Jump
-                    if (keys['Space'] || keys['KeyW'] || keys['ArrowUp'] || keys['touch']) {
-                        if(this.grounded) {
-                            this.dy = -this.jumpForce;
-                            this.grounded = false;
-                        }
-                    }
-                    keys['touch'] = false; // Reset touch input
-
-                    // Gravity
-                    this.y += this.dy;
-                    if (this.y + this.height < canvas.height - 10) {
-                        this.dy += gravity;
-                        this.grounded = false;
-                    } else {
-                        this.dy = 0;
-                        this.grounded = true;
-                        this.y = canvas.height - this.height - 10;
-                    }
-
-                    this.Draw();
-                }
-
-                Draw() {
-                    ctx.beginPath();
-                    ctx.fillStyle = this.color;
-                    ctx.fillRect(this.x, this.y, this.width, this.height);
-                    ctx.closePath();
-                }
-            }
+            function setupGameCanvas() { const containerWidth = gameContainer.clientWidth - 32; const aspectRatio = 2 / 1; gameCanvas.width = Math.min(containerWidth, 800); gameCanvas.height = gameCanvas.width / aspectRatio; }
+            class Obstacle { constructor (x, y, width, height, color) { this.x = x; this.y = y; this.width = width; this.height = height; this.color = color; this.dx = -gameSpeed; } Update () { this.x += this.dx; this.Draw(); this.dx = -gameSpeed; } Draw() { gameCtx.beginPath(); gameCtx.fillStyle = this.color; gameCtx.roundRect(this.x, this.y, this.width, this.height, 5); gameCtx.fill(); gameCtx.closePath(); } }
+            function spawnObstacle() { let size = Math.random() * 30 + 20; let type = Math.random(); if(type < 0.5){ obstacles.push(new Obstacle(gameCanvas.width + size, gameCanvas.height - size - 10, size, size, '#f472b6')); } else { obstacles.push(new Obstacle(gameCanvas.width + size, gameCanvas.height - size * 1.5 - 10, size, size * 1.5, '#67e8f9')); } }
+            function initGame() { setupGameCanvas(); obstacles = []; score = 0; gameSpeed = 4; gravity = 0.6; keys = { 'Space': false, 'KeyW': false, 'ArrowUp': false, 'touch': false }; player = new Cat(50, gameCanvas.height - 60, 40, 30, '#fde047'); scoreEl.innerText = 0; finalScoreEl.innerText = 0; gameOverScreen.classList.add('hidden'); document.addEventListener('keydown', (e) => keys[e.code] = true); document.addEventListener('keyup', (e) => keys[e.code] = false); gameCanvas.addEventListener('touchstart', (e) => { e.preventDefault(); keys['touch'] = true; }, { passive: false }); animateGame(); }
+            let initialSpawnTimer = 200; let spawnTimer = initialSpawnTimer;
+            function animateGame() { animationFrameId = requestAnimationFrame(animateGame); gameCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height); gameCtx.beginPath(); gameCtx.moveTo(0, gameCanvas.height - 10); gameCtx.lineTo(gameCanvas.width, gameCanvas.height - 10); gameCtx.strokeStyle = "rgba(255, 255, 255, 0.5)"; gameCtx.lineWidth = 2; gameCtx.stroke(); gameCtx.closePath(); spawnTimer--; if(spawnTimer <= 0) { spawnObstacle(); spawnTimer = initialSpawnTimer - gameSpeed * 8; if(spawnTimer < 60) spawnTimer = 60; } for (let i = obstacles.length - 1; i >= 0; i--) { let o = obstacles[i]; if (player.x < o.x + o.width && player.x + player.width > o.x && player.y < o.y + o.height && player.y + player.height > o.y) { gameOver(); return; } if (o.x + o.width < 0) { obstacles.splice(i, 1); } o.Update(); } player.Animate(gameCtx, gravity); score++; scoreEl.innerText = score; gameSpeed += 0.002; }
+            function gameOver() { cancelAnimationFrame(animationFrameId); finalScoreEl.innerText = score; gameOverScreen.classList.remove('hidden'); }
             
-            // Obstacle object
-            class Obstacle {
-                constructor (x, y, width, height, color) {
-                    this.x = x;
-                    this.y = y;
-                    this.width = width;
-                    this.height = height;
-                    this.color = color;
-                    this.dx = -gameSpeed;
+            playGameBtn.addEventListener('click', () => { 
+                if (expressionInterval) {
+                    clearInterval(expressionInterval);
+                    expressionInterval = null;
                 }
-
-                Update () {
-                    this.x += this.dx;
-                    this.Draw();
-                    this.dx = -gameSpeed;
-                }
-
-                Draw() {
-                    ctx.beginPath();
-                    ctx.fillStyle = this.color;
-                    ctx.fillRect(this.x, this.y, this.width, this.height);
-                    ctx.closePath();
-                }
-            }
-            
-            // Game functions
-            function spawnObstacle() {
-                let size = Math.random() * 30 + 20; // smaller obstacles
-                let type = Math.random();
-                let obstacle;
-                if(type < 0.5){
-                    obstacle = new Obstacle(canvas.width + size, canvas.height - size - 10, size, size, '#f472b6'); // pink
-                } else {
-                    obstacle = new Obstacle(canvas.width + size, canvas.height - size * 1.5 - 10, size, size * 1.5, '#67e8f9'); // cyan
-                }
-                obstacles.push(obstacle);
-            }
-            
-            function init() {
-                setupCanvas();
-                
-                obstacles = [];
-                score = 0;
-                gameSpeed = 4;
-                gravity = 0.6;
-                keys = { 'Space': false, 'KeyW': false, 'ArrowUp': false, 'touch': false };
-
-                // --- CHANGE HERE: Player size is now smaller ---
-                player = new Player(50, canvas.height - 60, 30, 30, '#fde047'); // yellow
-
-                scoreEl.innerText = 0;
-                finalScoreEl.innerText = 0;
-                gameOverScreen.classList.add('hidden');
-                
-                // Event Listeners for controls
-                document.addEventListener('keydown', (e) => keys[e.code] = true);
-                document.addEventListener('keyup', (e) => keys[e.code] = false);
-                canvas.addEventListener('touchstart', (e) => {
-                    e.preventDefault();
-                    keys['touch'] = true;
-                }, { passive: false });
-                
-                animate();
-            }
-            
-            let initialSpawnTimer = 200;
-            let spawnTimer = initialSpawnTimer;
-
-            function animate() {
-                animationFrameId = requestAnimationFrame(animate);
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                
-                // Ground
-                ctx.beginPath();
-                ctx.moveTo(0, canvas.height - 10);
-                ctx.lineTo(canvas.width, canvas.height - 10);
-                ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
-                ctx.lineWidth = 2;
-                ctx.stroke();
-                ctx.closePath();
-
-                // Spawn obstacles
-                spawnTimer--;
-                if(spawnTimer <= 0) {
-                    spawnObstacle();
-                    spawnTimer = initialSpawnTimer - gameSpeed * 8;
-                    if(spawnTimer < 60) spawnTimer = 60;
-                }
-
-                // Animate obstacles
-                for (let i = obstacles.length - 1; i >= 0; i--) {
-                    let o = obstacles[i];
-                    
-                    // Collision detection
-                    if (player.x < o.x + o.width &&
-                        player.x + player.width > o.x &&
-                        player.y < o.y + o.height &&
-                        player.y + player.height > o.y) {
-                        gameOver();
-                        return;
-                    }
-
-                    if (o.x + o.width < 0) {
-                        obstacles.splice(i, 1);
-                    }
-                    o.Update();
-                }
-
-                player.Animate();
-
-                score++;
-                scoreEl.innerText = score;
-                gameSpeed += 0.002;
-            }
-
-            function gameOver() {
-                cancelAnimationFrame(animationFrameId);
-                finalScoreEl.innerText = score;
-                gameOverScreen.classList.remove('hidden');
-            }
-
-            // UI Buttons Event Listeners
-            playGameBtn.addEventListener('click', () => {
-                congratsCard.classList.add('hidden');
-                gameContainer.classList.remove('hidden');
-                init();
+                isGameActive = true; 
+                if (activeCatAnimation) cancelAnimationFrame(activeCatAnimation); 
+                activeCatAnimation = null; 
+                catAnimCtx.clearRect(0,0,catAnimCanvas.width, catAnimCanvas.height); 
+                congratsCard.classList.add('hidden'); 
+                gameContainer.classList.remove('hidden'); 
+                initGame(); 
             });
 
-            backToCardBtn.addEventListener('click', () => {
-                cancelAnimationFrame(animationFrameId);
-                gameContainer.classList.add('hidden');
-                congratsCard.classList.remove('hidden');
+            backToCardBtn.addEventListener('click', () => { 
+                isGameActive = false; 
+                triggerRandomCatAnimation(); 
+                cancelAnimationFrame(animationFrameId); 
+                gameContainer.classList.add('hidden'); 
+                congratsCard.classList.remove('hidden'); 
             });
             
-            restartBtn.addEventListener('click', () => {
-                init();
-            });
-
-            window.addEventListener('resize', () => {
-                if(!gameContainer.classList.contains('hidden')){
-                    cancelAnimationFrame(animationFrameId);
-                    init();
-                }
-            });
+            restartBtn.addEventListener('click', () => { initGame(); });
+            window.addEventListener('resize', () => { if(!gameContainer.classList.contains('hidden')){ cancelAnimationFrame(animationFrameId); initGame(); } });
         });
     </script>
 </body>
